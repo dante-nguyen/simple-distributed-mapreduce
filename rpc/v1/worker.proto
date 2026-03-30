@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+package rpc.v1;
+
+option go_package = "github.com/nlduy0310/simple-distributed-mapreduce/rpc/v1;rpcv1";
