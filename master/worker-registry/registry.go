@@ -19,7 +19,7 @@ type Registry struct {
 	workersMap map[string]WorkerInfo // by worker id
 }
 
-func NewRegistry() *Registry {
+func EmptyRegistry() *Registry {
 	return &Registry{
 		workersMap: make(map[string]WorkerInfo),
 	}

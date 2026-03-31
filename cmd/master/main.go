@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/nlduy0310/simple-distributed-mapreduce/cli"
 	"github.com/nlduy0310/simple-distributed-mapreduce/errorsx"
 	"github.com/nlduy0310/simple-distributed-mapreduce/logging"
 	"github.com/nlduy0310/simple-distributed-mapreduce/master"
@@ -21,7 +22,12 @@ func run() int {
 		logger.Fatal(errorsx.WrapAsMessage("failed to load env file", err))
 	}
 
-	svr, err := master.Setup()
+	opts, err := cli.ParseMasterCLIOptions()
+	if err != nil {
+		logger.Fatal(errorsx.WrapAsMessage("failed to parse CLI options", err))
+	}
+
+	svr, err := master.Setup(opts)
 	if err != nil {
 		logger.Fatal(errorsx.WrapAsMessage("failed to setup server", err))
 	}

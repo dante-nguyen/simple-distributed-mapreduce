@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/nlduy0310/simple-distributed-mapreduce/cli"
 	"github.com/nlduy0310/simple-distributed-mapreduce/errorsx"
 	"github.com/nlduy0310/simple-distributed-mapreduce/logging"
 	rpcv1 "github.com/nlduy0310/simple-distributed-mapreduce/rpc/v1"
@@ -17,15 +18,20 @@ type Server struct {
 
 var logger = logging.NewLogger("master server", logging.DEBUG)
 
-func Setup() (*Server, error) {
+func Setup(opts cli.MasterCLIOptions) (*Server, error) {
 	cfg, err := autoConfig()
 	if err != nil {
 		return nil, errorsx.Wrap("can not initialize config", err)
 	}
 
+	masterService, err := NewMasterService(opts.FilePaths)
+	if err != nil {
+		return nil, errorsx.Wrap("can not initialize master service", err)
+	}
+
 	return &Server{
 		cfg:           cfg,
-		masterService: NewMasterService(),
+		masterService: masterService,
 	}, nil
 }
 

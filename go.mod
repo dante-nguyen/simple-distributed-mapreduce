@@ -3,6 +3,7 @@ module github.com/nlduy0310/simple-distributed-mapreduce
 go 1.26.1
 
 require (
+	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/caarlos0/env/v11 v11.4.0
 	github.com/joho/godotenv v1.5.1
 	google.golang.org/grpc v1.79.3
@@ -10,6 +11,9 @@ require (
 )
 
 require (
+	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137 // indirect
+	github.com/stretchr/testify v1.11.1 // indirect
+	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
 	go.opentelemetry.io/otel v1.40.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.40.0 // indirect
 	golang.org/x/net v0.50.0 // indirect
