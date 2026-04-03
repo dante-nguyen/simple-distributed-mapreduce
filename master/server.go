@@ -6,8 +6,8 @@ import (
 
 	"github.com/nlduy0310/simple-distributed-mapreduce/cli"
 	"github.com/nlduy0310/simple-distributed-mapreduce/errorsx"
-	"github.com/nlduy0310/simple-distributed-mapreduce/logging"
 	rpcv1 "github.com/nlduy0310/simple-distributed-mapreduce/rpc/v1"
+	"github.com/nlduy0310/simplelog"
 	"google.golang.org/grpc"
 )
 
@@ -16,7 +16,7 @@ type Server struct {
 	masterService *MasterService
 }
 
-var logger = logging.NewLogger("master server", logging.DEBUG)
+var logger = simplelog.NewLogger("master server", simplelog.DEBUG)
 
 func Setup(opts cli.MasterCLIOptions) (*Server, error) {
 	cfg, err := autoConfig()

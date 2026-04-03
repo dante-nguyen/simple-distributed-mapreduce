@@ -6,11 +6,11 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/nlduy0310/simple-distributed-mapreduce/cli"
 	"github.com/nlduy0310/simple-distributed-mapreduce/errorsx"
-	"github.com/nlduy0310/simple-distributed-mapreduce/logging"
 	"github.com/nlduy0310/simple-distributed-mapreduce/master"
+	"github.com/nlduy0310/simplelog"
 )
 
-var logger = logging.NewLogger("entrypoint", logging.DEBUG)
+var logger = simplelog.NewLogger("entrypoint", simplelog.DEBUG)
 
 func main() {
 	os.Exit(run())

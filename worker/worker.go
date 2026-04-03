@@ -6,14 +6,14 @@ import (
 	"net"
 
 	"github.com/nlduy0310/simple-distributed-mapreduce/errorsx"
-	"github.com/nlduy0310/simple-distributed-mapreduce/logging"
 	rpcv1 "github.com/nlduy0310/simple-distributed-mapreduce/rpc/v1"
+	"github.com/nlduy0310/simplelog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 type Server struct {
-	logger              logging.Logger
+	logger              simplelog.Logger
 	id                  string
 	cfg                 config
 	clientConn          *grpc.ClientConn
@@ -48,7 +48,7 @@ func Setup() (*Server, error) {
 
 	id := genId()
 	return &Server{
-		logger:              logging.NewLogger(id, logging.DEBUG),
+		logger:              simplelog.NewLogger(id, simplelog.DEBUG),
 		id:                  id,
 		cfg:                 cfg,
 		clientConn:          grpcClient,
