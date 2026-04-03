@@ -45,6 +45,6 @@ func (s *Server) Serve() error {
 	grpcSvr := grpc.NewServer()
 	rpcv1.RegisterMasterServiceServer(grpcSvr, s.masterService)
 
-	logger.Info("listening on %s", s.cfg.ListenAddress)
+	logger.Infof("listening on %s", s.cfg.ListenAddress)
 	return grpcSvr.Serve(listener)
 }

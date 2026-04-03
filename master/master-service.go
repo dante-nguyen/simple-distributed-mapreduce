@@ -20,7 +20,7 @@ func NewMasterService(filePaths []string) (*MasterService, error) {
 	if err != nil {
 		return nil, errorsx.Wrap("can not initialize input registry", err)
 	}
-	logger.Debug("initialized input registry of %d files", inputRegistry.Size())
+	logger.Debugf("initialized input registry of %d files", inputRegistry.Size())
 
 	return &MasterService{
 		workerRegistry: workerregistry.EmptyRegistry(),
@@ -33,6 +33,6 @@ func (s *MasterService) RegisterWorker(ctx context.Context, req *rpcv1.RegisterW
 		return nil, errorsx.Wrap("can not register worker", err)
 	}
 
-	logger.Debug("registered worker %s", req.Id)
+	logger.Debugf("registered worker %s", req.Id)
 	return &rpcv1.RegisterWorkerResponse{}, nil
 }

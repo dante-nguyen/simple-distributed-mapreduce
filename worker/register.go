@@ -9,7 +9,7 @@ import (
 )
 
 func (s *Server) initialRegister() {
-	s.logger.Debug("attempting to register this as %s", s.id)
+	s.logger.Debugf("attempting to register this as %s", s.id)
 
 	timeoutDuration := time.Duration(s.cfg.RegisterTimeoutSec) * time.Second
 	ctx, cancel := context.WithTimeout(context.Background(), timeoutDuration)

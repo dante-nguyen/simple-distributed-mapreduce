@@ -61,7 +61,7 @@ func Setup() (*Server, error) {
 
 func (s *Server) Serve() error {
 	s.registerIfNeeded()
-	s.logger.Info("listening on %s", s.cfg.ListenAddr)
+	s.logger.Infof("listening on %s", s.cfg.ListenAddr)
 	return s.grpcServer.Serve(s.listener)
 }
 
