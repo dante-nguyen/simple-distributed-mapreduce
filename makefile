@@ -1,6 +1,6 @@
 PROTO_FILES ?= ./rpc/v1/*.proto
 
-.PHONY: proto-gen
+.PHONY: protoc
 protoc:
 	protoc \
 		--go_out=. --go_opt=paths=source_relative \
