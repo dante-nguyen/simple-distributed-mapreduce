@@ -1,0 +1,9 @@
+services:
+  master:
+    container_name: master
+    build:
+      context: .
+      dockerfile: Dockerfile.master
+    environment:
+      - PORT=8000
+    # command: ["--port", "5000"]
