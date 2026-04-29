@@ -3,12 +3,14 @@ package server
 import "errors"
 
 var (
-	errInvalidPort = errors.New("invalid port")
+	errInvalidPort        = errors.New("invalid port")
+	errEmptyAdvertiseAddr = errors.New("empty advertise address")
 )
 
 type Config struct {
-	Port         int
-	HostOverride string
+	Port          int
+	HostOverride  string
+	AdvertiseAddr string
 }
 
 type OptFunc = func(c *Config)
@@ -18,18 +20,23 @@ func (c Config) validate() error {
 		return errInvalidPort
 	}
 
+	if len(c.AdvertiseAddr) == 0 {
+		return errEmptyAdvertiseAddr
+	}
+
 	return nil
 }
 
-func defaultConfig(port int) Config {
+func defaultConfig(port int, advertiseAddr string) Config {
 	return Config{
-		Port:         port,
-		HostOverride: "",
+		Port:          port,
+		HostOverride:  "",
+		AdvertiseAddr: advertiseAddr,
 	}
 }
 
-func NewConfig(port int, opts ...OptFunc) (Config, error) {
-	res := defaultConfig(port)
+func NewConfig(port int, advertiseAddr string, opts ...OptFunc) (Config, error) {
+	res := defaultConfig(port, advertiseAddr)
 	for _, opt := range opts {
 		opt(&res)
 	}

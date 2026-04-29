@@ -4,6 +4,38 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.master
-    environment:
-      - PORT=8000
-    # command: ["--port", "5000"]
+    command:
+      - "--port"
+      - "8000"
+      - "--advertise-address"
+      - "master:8000"
+
+  worker-1:
+    container_name: worker-1
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    command:
+      - "--port"
+      - "5000"
+      - "--advertise-address"
+      - "worker-1:5000"
+      - "--master-address"
+      - "master:8000"
+    depends_on:
+      - master
+
+  worker-2:
+    container_name: worker-2
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    command:
+      - "--port"
+      - "5000"
+      - "--advertise-address"
+      - "worker-2:5000"
+      - "--master-address"
+      - "master:8000"
+    depends_on:
+      - master

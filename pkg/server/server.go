@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
 
 	"google.golang.org/grpc"
 )
@@ -34,28 +33,12 @@ func (s *Server) Serve(ctx context.Context) error {
 		s.GrpcServer.GracefulStop()
 	}()
 
-	log.Printf("server listening on port %d (advertise %s)", s.Config.Port, s.AdvertiseAddr())
+	log.Printf("server listening on port %d (advertises %s)", s.Config.Port, s.Config.AdvertiseAddr)
 	return s.GrpcServer.Serve(s.listener)
 }
 
 func (s *Server) Close() error {
 	return s.listener.Close()
-}
-
-func (s *Server) AdvertiseAddr() string {
-	var hostname string
-	var err error
-
-	if len(s.Config.HostOverride) > 0 {
-		hostname = s.Config.HostOverride
-	} else {
-		hostname, err = os.Hostname()
-		if err != nil {
-			hostname = "127.0.0.1"
-		}
-	}
-
-	return fmt.Sprintf("%s:%d", hostname, s.Config.Port)
 }
 
 func listenAddr(port int) string {
