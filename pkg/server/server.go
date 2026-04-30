@@ -28,13 +28,24 @@ func New(config Config) (*Server, error) {
 }
 
 func (s *Server) Serve(ctx context.Context) error {
+	errCh := make(chan error, 1)
+
 	go func() {
-		<-ctx.Done()
-		s.GrpcServer.GracefulStop()
+		log.Printf("server listening on port %d (advertises %s)", s.Config.Port, s.Config.AdvertiseAddr)
+		errCh <- s.GrpcServer.Serve(s.listener)
 	}()
 
-	log.Printf("server listening on port %d (advertises %s)", s.Config.Port, s.Config.AdvertiseAddr)
-	return s.GrpcServer.Serve(s.listener)
+	select {
+	case err := <-errCh:
+		return err
+	case <-ctx.Done():
+		s.GrpcServer.GracefulStop()
+		if err := <-errCh; err != nil {
+			return err
+		}
+
+		return ctx.Err()
+	}
 }
 
 func (s *Server) Close() error {

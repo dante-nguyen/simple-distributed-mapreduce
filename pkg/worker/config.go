@@ -2,7 +2,6 @@ package worker
 
 import (
 	"errors"
-	"time"
 )
 
 var (
@@ -11,10 +10,9 @@ var (
 )
 
 type Config struct {
-	Name            string
-	MasterAddr      string
-	AdvertiseAddr   string
-	RegisterTimeout time.Duration
+	Name          string
+	MasterAddr    string
+	AdvertiseAddr string
 }
 
 func validateConfig(cfg Config) error {

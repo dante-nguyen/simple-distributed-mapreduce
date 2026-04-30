@@ -21,8 +21,9 @@ var (
 	port              = flag.Int("port", 5000, "the port to listen on")
 	masterAddr        = flag.String("master-address", "", "master address")
 	advertiseAddr     = flag.String("advertise-address", "", "advertise address")
-	registerTimeout   = flag.Int("register-timeout", 5, "register timeout in seconds")
+	initTimeout       = flag.Int("init-timeout", 30, "init timeout in seconds")
 	heartbeatInterval = flag.Int("heartbeat-interval", 5, "heartbeat interval in seconds")
+	heartbeatTimeout  = flag.Int("heartbeat-timeout", 3, "heartbeat timeout in seconds")
 )
 
 var (
@@ -31,6 +32,11 @@ var (
 
 func run() int {
 	flag.Parse()
+
+	if err := validateFlags(); err != nil {
+		logx.Err("configuring application", err)
+		return 1
+	}
 
 	signalCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -51,10 +57,9 @@ func run() int {
 	defer svr.Close()
 
 	svc, err := worker.NewService(worker.Config{
-		Name:            *name,
-		MasterAddr:      *masterAddr,
-		AdvertiseAddr:   svr.Config.AdvertiseAddr,
-		RegisterTimeout: time.Duration(*registerTimeout) * time.Second,
+		Name:          *name,
+		MasterAddr:    *masterAddr,
+		AdvertiseAddr: svr.Config.AdvertiseAddr,
 	})
 	if err != nil {
 		logx.Err("configure service", err)
@@ -62,7 +67,9 @@ func run() int {
 	}
 	defer svc.Close()
 
-	if err = svc.Init(); err != nil {
+	initCtx, timeoutInit := context.WithTimeout(ctx, time.Duration(*initTimeout)*time.Second)
+	defer timeoutInit()
+	if err = svc.Init(initCtx); err != nil {
 		logx.Err("initialize service", err)
 		return 1
 	}
@@ -70,7 +77,7 @@ func run() int {
 	rpcv1.RegisterWorkerServiceServer(svr.GrpcServer, svc)
 
 	go func() {
-		err := periodicHeartbeat(ctx, svc, time.Duration(*heartbeatInterval)*time.Second)
+		err := periodicHeartbeat(ctx, svc, time.Duration(*heartbeatInterval)*time.Second, time.Duration(*heartbeatTimeout)*time.Second)
 		if err != nil {
 			cancelWithCause(errx.Chain(errHeartbeatFailure, err))
 		}
@@ -87,21 +94,34 @@ func run() int {
 	return 0
 }
 
-func periodicHeartbeat(ctx context.Context, svc *worker.Service, interval time.Duration) error {
+func periodicHeartbeat(ctx context.Context, svc *worker.Service, interval time.Duration, timeout time.Duration) error {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ticker.C:
-			// TODO make this timeout
-			if err := svc.DoHeartbeat(); err != nil {
+			if err := heartbeatWithTimeout(ctx, svc, timeout); err != nil {
 				return err
 			}
 		case <-ctx.Done():
 			return nil
 		}
 	}
+}
+
+func heartbeatWithTimeout(parent context.Context, svc *worker.Service, timeout time.Duration) error {
+	ctx, timeoutHeartbeat := context.WithTimeout(parent, timeout)
+	defer timeoutHeartbeat()
+	if err := svc.DoHeartbeat(ctx); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func validateFlags() error {
+	return nil
 }
 
 func main() {

@@ -54,26 +54,23 @@ func NewService(cfg Config) (*Service, error) {
 	}, nil
 }
 
-func (s *Service) Init() error {
-	if err := s.register(); err != nil {
+func (s *Service) Init(ctx context.Context) error {
+	if err := s.register(ctx); err != nil {
 		return errx.Chain(errRegister, err)
 	}
 
 	return nil
 }
 
-func (s *Service) DoHeartbeat() error {
-	if _, err := s.master.Heartbeat(context.TODO(), &rpcv1.HeartbeatRequest{Name: s.Name}); err != nil {
+func (s *Service) DoHeartbeat(ctx context.Context) error {
+	if _, err := s.master.Heartbeat(ctx, &rpcv1.HeartbeatRequest{Name: s.Name}); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *Service) register() error {
-	ctx, timeout := context.WithTimeout(context.Background(), s.Config.RegisterTimeout)
-	defer timeout()
-
+func (s *Service) register(ctx context.Context) error {
 	req := rpcv1.RegisterRequest{Name: s.Name, Address: s.Config.AdvertiseAddr}
 	_, err := s.master.Register(ctx, &req)
 	if err != nil {
