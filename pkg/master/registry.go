@@ -1,9 +1,11 @@
 package master
 
 import (
+	"context"
 	"errors"
-	"sync"
 	"time"
+
+	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/syncx"
 )
 
 var (
@@ -12,37 +14,47 @@ var (
 )
 
 type registry struct {
-	mu      sync.RWMutex
+	mu      *syncx.CtxRWMutex
 	workers map[string]*worker
 }
 
 func newRegistry() *registry {
 	return &registry{
+		mu:      syncx.NewCtxRWMutex(),
 		workers: make(map[string]*worker),
 	}
 }
 
-func (r *registry) exist(name string) bool {
-	r.mu.RLock()
+func (r *registry) exist(ctx context.Context, name string) (bool, error) {
+	if err := r.mu.RLock(ctx); err != nil {
+		return false, err
+	}
 	defer r.mu.RUnlock()
+
 	_, ok := r.workers[name]
-	return ok
+	return ok, nil
 }
 
-func (r *registry) register(name, address string) error {
-	if r.exist(name) {
+func (r *registry) register(ctx context.Context, name, address string) error {
+	if exist, err := r.exist(ctx, name); err != nil {
+		return err
+	} else if exist {
 		return errWorkerExists
 	}
 
-	r.mu.Lock()
+	if err := r.mu.Lock(ctx); err != nil {
+		return err
+	}
 	defer r.mu.Unlock()
 
 	r.workers[name] = newWorker(address)
 	return nil
 }
 
-func (r *registry) recordHeartbeat(name string, at time.Time) error {
-	r.mu.RLock()
+func (r *registry) recordHeartbeat(ctx context.Context, name string, at time.Time) error {
+	if err := r.mu.RLock(ctx); err != nil {
+		return err
+	}
 	defer r.mu.RUnlock()
 
 	w, ok := r.workers[name]
@@ -50,12 +62,13 @@ func (r *registry) recordHeartbeat(name string, at time.Time) error {
 		return errWorkerNotFound
 	}
 
-	w.recordHeartbeat(at)
-	return nil
+	return w.recordHeartbeat(ctx, at)
 }
 
-func (r *registry) remove(name string) error {
-	r.mu.Lock()
+func (r *registry) remove(ctx context.Context, name string) error {
+	if err := r.mu.Lock(ctx); err != nil {
+		return err
+	}
 	defer r.mu.Unlock()
 
 	delete(r.workers, name)

@@ -22,8 +22,8 @@ type Service struct {
 	reg    *registry
 }
 
-func (s *Service) Register(_ context.Context, req *rpcv1.RegisterRequest) (*rpcv1.RegisterResponse, error) {
-	if err := s.reg.register(req.Name, req.Address); err != nil {
+func (s *Service) Register(ctx context.Context, req *rpcv1.RegisterRequest) (*rpcv1.RegisterResponse, error) {
+	if err := s.reg.register(ctx, req.Name, req.Address); err != nil {
 		logx.Err(fmt.Sprintf("register worker %q at %q", req.Name, req.Address), err)
 		return nil, err
 	}
@@ -32,9 +32,9 @@ func (s *Service) Register(_ context.Context, req *rpcv1.RegisterRequest) (*rpcv
 	return &rpcv1.RegisterResponse{Ok: true}, nil
 }
 
-func (s *Service) Heartbeat(_ context.Context, req *rpcv1.HeartbeatRequest) (*rpcv1.HeartbeatResponse, error) {
+func (s *Service) Heartbeat(ctx context.Context, req *rpcv1.HeartbeatRequest) (*rpcv1.HeartbeatResponse, error) {
 	ts := time.Now()
-	if err := s.reg.recordHeartbeat(req.Name, ts); err != nil {
+	if err := s.reg.recordHeartbeat(ctx, req.Name, ts); err != nil {
 		return nil, err
 	}
 
