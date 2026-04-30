@@ -6,6 +6,7 @@ option go_package = "github.com/nlduy0310/simple-distributed-mapreduce/rpc/v1;rp
 
 service MasterService {
   rpc Register(RegisterRequest) returns (RegisterResponse) {}
+  rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse) {}
 }
 
 message RegisterRequest {
@@ -14,5 +15,13 @@ message RegisterRequest {
 }
 
 message RegisterResponse {
+  bool ok = 1;
+}
+
+message HeartbeatRequest {
+  string name = 1;
+}
+
+message HeartbeatResponse {
   bool ok = 1;
 }

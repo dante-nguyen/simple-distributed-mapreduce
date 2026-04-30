@@ -117,6 +117,94 @@ func (x *RegisterResponse) GetOk() bool {
 	return false
 }
 
+type HeartbeatRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HeartbeatRequest) Reset() {
+	*x = HeartbeatRequest{}
+	mi := &file_rpc_v1_master_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HeartbeatRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HeartbeatRequest) ProtoMessage() {}
+
+func (x *HeartbeatRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_v1_master_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HeartbeatRequest.ProtoReflect.Descriptor instead.
+func (*HeartbeatRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_v1_master_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *HeartbeatRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type HeartbeatResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Ok            bool                   `protobuf:"varint,1,opt,name=ok,proto3" json:"ok,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HeartbeatResponse) Reset() {
+	*x = HeartbeatResponse{}
+	mi := &file_rpc_v1_master_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HeartbeatResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HeartbeatResponse) ProtoMessage() {}
+
+func (x *HeartbeatResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_v1_master_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HeartbeatResponse.ProtoReflect.Descriptor instead.
+func (*HeartbeatResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_v1_master_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *HeartbeatResponse) GetOk() bool {
+	if x != nil {
+		return x.Ok
+	}
+	return false
+}
+
 var File_rpc_v1_master_proto protoreflect.FileDescriptor
 
 const file_rpc_v1_master_proto_rawDesc = "" +
@@ -126,9 +214,14 @@ const file_rpc_v1_master_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\aaddress\x18\x02 \x01(\tR\aaddress\"\"\n" +
 	"\x10RegisterResponse\x12\x0e\n" +
-	"\x02ok\x18\x01 \x01(\bR\x02ok2P\n" +
+	"\x02ok\x18\x01 \x01(\bR\x02ok\"&\n" +
+	"\x10HeartbeatRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"#\n" +
+	"\x11HeartbeatResponse\x12\x0e\n" +
+	"\x02ok\x18\x01 \x01(\bR\x02ok2\x94\x01\n" +
 	"\rMasterService\x12?\n" +
-	"\bRegister\x12\x17.rpc.v1.RegisterRequest\x1a\x18.rpc.v1.RegisterResponse\"\x00B@Z>github.com/nlduy0310/simple-distributed-mapreduce/rpc/v1;rpcv1b\x06proto3"
+	"\bRegister\x12\x17.rpc.v1.RegisterRequest\x1a\x18.rpc.v1.RegisterResponse\"\x00\x12B\n" +
+	"\tHeartbeat\x12\x18.rpc.v1.HeartbeatRequest\x1a\x19.rpc.v1.HeartbeatResponse\"\x00B@Z>github.com/nlduy0310/simple-distributed-mapreduce/rpc/v1;rpcv1b\x06proto3"
 
 var (
 	file_rpc_v1_master_proto_rawDescOnce sync.Once
@@ -142,16 +235,20 @@ func file_rpc_v1_master_proto_rawDescGZIP() []byte {
 	return file_rpc_v1_master_proto_rawDescData
 }
 
-var file_rpc_v1_master_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_rpc_v1_master_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_rpc_v1_master_proto_goTypes = []any{
-	(*RegisterRequest)(nil),  // 0: rpc.v1.RegisterRequest
-	(*RegisterResponse)(nil), // 1: rpc.v1.RegisterResponse
+	(*RegisterRequest)(nil),   // 0: rpc.v1.RegisterRequest
+	(*RegisterResponse)(nil),  // 1: rpc.v1.RegisterResponse
+	(*HeartbeatRequest)(nil),  // 2: rpc.v1.HeartbeatRequest
+	(*HeartbeatResponse)(nil), // 3: rpc.v1.HeartbeatResponse
 }
 var file_rpc_v1_master_proto_depIdxs = []int32{
 	0, // 0: rpc.v1.MasterService.Register:input_type -> rpc.v1.RegisterRequest
-	1, // 1: rpc.v1.MasterService.Register:output_type -> rpc.v1.RegisterResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	2, // 1: rpc.v1.MasterService.Heartbeat:input_type -> rpc.v1.HeartbeatRequest
+	1, // 2: rpc.v1.MasterService.Register:output_type -> rpc.v1.RegisterResponse
+	3, // 3: rpc.v1.MasterService.Heartbeat:output_type -> rpc.v1.HeartbeatResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -168,7 +265,7 @@ func file_rpc_v1_master_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rpc_v1_master_proto_rawDesc), len(file_rpc_v1_master_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

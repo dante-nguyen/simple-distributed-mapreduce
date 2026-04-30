@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/errx"
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/logx"
@@ -24,11 +25,21 @@ type Service struct {
 func (s *Service) Register(_ context.Context, req *rpcv1.RegisterRequest) (*rpcv1.RegisterResponse, error) {
 	if err := s.reg.register(req.Name, req.Address); err != nil {
 		logx.Err(fmt.Sprintf("register worker %q at %q", req.Name, req.Address), err)
-		return &rpcv1.RegisterResponse{Ok: false}, err
+		return nil, err
 	}
 
 	log.Printf("successfully registered worker %q at %q", req.Name, req.Address)
 	return &rpcv1.RegisterResponse{Ok: true}, nil
+}
+
+func (s *Service) Heartbeat(_ context.Context, req *rpcv1.HeartbeatRequest) (*rpcv1.HeartbeatResponse, error) {
+	ts := time.Now()
+	if err := s.reg.recordHeartbeat(req.Name, ts); err != nil {
+		return nil, err
+	}
+
+	// log.Printf("received heartbeat from %q at %s", req.Name, ts)
+	return &rpcv1.HeartbeatResponse{Ok: true}, nil
 }
 
 func NewService(cfg Config) (*Service, error) {

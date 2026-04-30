@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/errx"
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/logx"
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/server"
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/worker"
@@ -15,18 +17,25 @@ import (
 )
 
 var (
-	name            = flag.String("name", "", "the worker's identity")
-	port            = flag.Int("port", 5000, "the port to listen on")
-	masterAddr      = flag.String("master-address", "", "master address")
-	advertiseAddr   = flag.String("advertise-address", "", "advertise address")
-	registerTimeout = flag.Int("register-timeout", 5, "register timeout in seconds")
+	name              = flag.String("name", "", "the worker's identity")
+	port              = flag.Int("port", 5000, "the port to listen on")
+	masterAddr        = flag.String("master-address", "", "master address")
+	advertiseAddr     = flag.String("advertise-address", "", "advertise address")
+	registerTimeout   = flag.Int("register-timeout", 5, "register timeout in seconds")
+	heartbeatInterval = flag.Int("heartbeat-interval", 5, "heartbeat interval in seconds")
+)
+
+var (
+	errHeartbeatFailure = errors.New("heartbeat failure")
 )
 
 func run() int {
 	flag.Parse()
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	signalCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+	ctx, cancelWithCause := context.WithCancelCause(signalCtx)
+	defer cancelWithCause(nil)
 
 	svrConfig, err := server.NewConfig(*port, *advertiseAddr)
 	if err != nil {
@@ -60,12 +69,39 @@ func run() int {
 
 	rpcv1.RegisterWorkerServiceServer(svr.GrpcServer, svc)
 
+	go func() {
+		err := periodicHeartbeat(ctx, svc, time.Duration(*heartbeatInterval)*time.Second)
+		if err != nil {
+			cancelWithCause(errx.Chain(errHeartbeatFailure, err))
+		}
+	}()
+
 	if err := svr.Serve(ctx); err != nil {
 		logx.Err("exited with error", err)
+		if ctxErr, cause := ctx.Err(), context.Cause(ctx); ctxErr != nil && ctxErr != cause {
+			logx.Err("cause", cause)
+		}
 		return 1
 	}
 
 	return 0
+}
+
+func periodicHeartbeat(ctx context.Context, svc *worker.Service, interval time.Duration) error {
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			// TODO make this timeout
+			if err := svc.DoHeartbeat(); err != nil {
+				return err
+			}
+		case <-ctx.Done():
+			return nil
+		}
+	}
 }
 
 func main() {

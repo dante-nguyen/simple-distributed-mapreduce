@@ -24,6 +24,8 @@ services:
       - "worker-1:5000"
       - "--master-address"
       - "master:8000"
+      - "--heartbeat-interval"
+      - "5"
     depends_on:
       - master
 
@@ -41,5 +43,7 @@ services:
       - "worker-2:5000"
       - "--master-address"
       - "master:8000"
+      - "--heartbeat-interval"
+      - "2"
     depends_on:
       - master

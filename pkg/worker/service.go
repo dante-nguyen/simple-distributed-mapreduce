@@ -62,6 +62,14 @@ func (s *Service) Init() error {
 	return nil
 }
 
+func (s *Service) DoHeartbeat() error {
+	if _, err := s.master.Heartbeat(context.TODO(), &rpcv1.HeartbeatRequest{Name: s.Name}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *Service) register() error {
 	ctx, timeout := context.WithTimeout(context.Background(), s.Config.RegisterTimeout)
 	defer timeout()
