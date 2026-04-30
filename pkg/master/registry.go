@@ -51,6 +51,25 @@ func (r *registry) register(ctx context.Context, name, address string) error {
 	return nil
 }
 
+func (r *registry) lastHeartbeat(ctx context.Context, name string) (time.Time, error) {
+	if err := r.mu.RLock(ctx); err != nil {
+		return time.Time{}, err
+	}
+	defer r.mu.RUnlock()
+
+	w, ok := r.workers[name]
+	if !ok {
+		return time.Time{}, errWorkerNotFound
+	}
+
+	ret, err := w.lastHeartbeat(ctx)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return ret, nil
+}
+
 func (r *registry) recordHeartbeat(ctx context.Context, name string, at time.Time) error {
 	if err := r.mu.RLock(ctx); err != nil {
 		return err
@@ -73,4 +92,17 @@ func (r *registry) remove(ctx context.Context, name string) error {
 
 	delete(r.workers, name)
 	return nil
+}
+
+func (r *registry) names(ctx context.Context) ([]string, error) {
+	if err := r.mu.RLock(ctx); err != nil {
+		return nil, err
+	}
+	defer r.mu.RUnlock()
+
+	ret := make([]string, 0, len(r.workers))
+	for name := range r.workers {
+		ret = append(ret, name)
+	}
+	return ret, nil
 }

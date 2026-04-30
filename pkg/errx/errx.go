@@ -1,6 +1,9 @@
 package errx
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 func Chain(errs ...error) error {
 	if len(errs) == 0 {
@@ -16,4 +19,14 @@ func Chain(errs ...error) error {
 		}
 	}
 	return ret
+}
+
+func OneOf(err error, errs ...error) bool {
+	for _, target := range errs {
+		if errors.Is(err, target) {
+			return true
+		}
+	}
+
+	return false
 }
