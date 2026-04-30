@@ -3,7 +3,7 @@ services:
     container_name: master
     build:
       context: .
-      dockerfile: Dockerfile.master
+      dockerfile: build/master/Dockerfile
     command:
       - "--port"
       - "8000"
@@ -14,7 +14,7 @@ services:
     container_name: worker-1
     build:
       context: .
-      dockerfile: Dockerfile.worker
+      dockerfile: build/worker/Dockerfile
     command:
       - "--name"
       - "worker-1"
@@ -33,7 +33,7 @@ services:
     container_name: worker-2
     build:
       context: .
-      dockerfile: Dockerfile.worker
+      dockerfile: build/worker/Dockerfile
     command:
       - "--name"
       - "worker-2"
