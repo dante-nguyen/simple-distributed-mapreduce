@@ -11,6 +11,7 @@ var (
 )
 
 type Config struct {
+	Name            string
 	MasterAddr      string
 	AdvertiseAddr   string
 	RegisterTimeout time.Duration

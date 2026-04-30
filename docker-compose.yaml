@@ -16,6 +16,8 @@ services:
       context: .
       dockerfile: Dockerfile.worker
     command:
+      - "--name"
+      - "worker-1"
       - "--port"
       - "5000"
       - "--advertise-address"
@@ -31,6 +33,8 @@ services:
       context: .
       dockerfile: Dockerfile.worker
     command:
+      - "--name"
+      - "worker-2"
       - "--port"
       - "5000"
       - "--advertise-address"

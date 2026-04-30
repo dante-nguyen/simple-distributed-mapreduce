@@ -15,6 +15,7 @@ import (
 )
 
 var (
+	name            = flag.String("name", "", "the worker's identity")
 	port            = flag.Int("port", 5000, "the port to listen on")
 	masterAddr      = flag.String("master-address", "", "master address")
 	advertiseAddr   = flag.String("advertise-address", "", "advertise address")
@@ -41,6 +42,7 @@ func run() int {
 	defer svr.Close()
 
 	svc, err := worker.NewService(worker.Config{
+		Name:            *name,
 		MasterAddr:      *masterAddr,
 		AdvertiseAddr:   svr.Config.AdvertiseAddr,
 		RegisterTimeout: time.Duration(*registerTimeout) * time.Second,

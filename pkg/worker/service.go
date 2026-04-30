@@ -41,9 +41,14 @@ func NewService(cfg Config) (*Service, error) {
 
 	master := rpcv1.NewMasterServiceClient(client.Conn)
 
+	name := cfg.Name
+	if len(name) == 0 {
+		name = randomName()
+	}
+
 	return &Service{
 		Config: cfg,
-		Name:   randomName(),
+		Name:   name,
 		client: client,
 		master: master,
 	}, nil
