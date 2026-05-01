@@ -14,9 +14,9 @@ type Config struct {
 func validateConfig(cfg Config) error {
 	for _, path := range cfg.InputFiles {
 		if is, err := fsx.IsFile(path); err != nil {
-			return errx.WithContextMsg(err, fmt.Sprintf("file %s", path))
+			return errx.WithContext(err, fmt.Sprintf("file %s", path))
 		} else if !is {
-			return errx.WithContextMsg(fsx.ErrNotAFile, fmt.Sprintf("file %s", path))
+			return errx.WithContext(fsx.ErrNotAFile, fmt.Sprintf("file %s", path))
 		}
 	}
 

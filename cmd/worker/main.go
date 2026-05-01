@@ -34,7 +34,7 @@ func run() int {
 	flag.Parse()
 
 	if err := validateFlags(); err != nil {
-		logx.Err("configuring application", err)
+		logx.Err(errx.WithContext(err, "configure application"))
 		return 1
 	}
 
@@ -45,13 +45,13 @@ func run() int {
 
 	svrConfig, err := server.NewConfig(*port, *advertiseAddr)
 	if err != nil {
-		logx.Err("server config", err)
+		logx.Err(errx.WithContext(err, "init server config"))
 		return 1
 	}
 
 	svr, err := server.New(svrConfig)
 	if err != nil {
-		logx.Err("configure server", err)
+		logx.Err(errx.WithContext(err, "configure server"))
 		return 1
 	}
 	defer svr.Close()
@@ -62,7 +62,7 @@ func run() int {
 		AdvertiseAddr: svr.Config.AdvertiseAddr,
 	})
 	if err != nil {
-		logx.Err("configure service", err)
+		logx.Err(errx.WithContext(err, "configure service"))
 		return 1
 	}
 	defer svc.Close()
@@ -70,7 +70,7 @@ func run() int {
 	initCtx, timeoutInit := context.WithTimeout(ctx, *initTimeout)
 	defer timeoutInit()
 	if err = svc.Init(initCtx); err != nil {
-		logx.Err("initialize service", err)
+		logx.Err(errx.WithContext(err, "initialize service"))
 		return 1
 	}
 
@@ -79,14 +79,14 @@ func run() int {
 	go func() {
 		err := periodicHeartbeat(ctx, svc, *heartbeatInterval, *heartbeatTimeout)
 		if err != nil {
-			cancelWithCause(errx.Chain(errHeartbeatFailure, err))
+			cancelWithCause(errx.WithContextErr(err, errHeartbeatFailure))
 		}
 	}()
 
 	if err := svr.Serve(ctx); err != nil {
-		logx.Err("exited with error", err)
+		logx.Err(errx.WithContext(err, "server exited with error"))
 		if ctxErr, cause := ctx.Err(), context.Cause(ctx); ctxErr != nil && ctxErr != cause {
-			logx.Err("cause", cause)
+			logx.Err(errx.WithContext(err, "cause"))
 		}
 		return 1
 	}

@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/errx"
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/fsx"
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/logx"
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/master"
@@ -19,27 +20,27 @@ func run() int {
 
 	svrConfig, err := server.NewConfig(port, advertiseAddr)
 	if err != nil {
-		logx.Err("initialize config", err)
+		logx.Err(errx.WithContext(err, "initialize config"))
 		return 1
 	}
 
 	svr, err := server.New(svrConfig)
 	if err != nil {
-		logx.Err("configure server", err)
+		logx.Err(errx.WithContext(err, "configure server"))
 		return 1
 	}
 	defer svr.Close()
 
 	inputFiles, err := fsx.CollectPaths(inDir.Path, fsx.FilterFile)
 	if err != nil {
-		logx.Err("listing input files", err)
+		logx.Err(errx.WithContext(err, "list input files"))
 		return 1
 	}
 
 	svcConfig := master.Config{InputFiles: inputFiles}
 	svc, err := master.NewService(svcConfig)
 	if err != nil {
-		logx.Err("configure service", err)
+		logx.Err(errx.WithContext(err, "configure service"))
 		return 1
 	}
 
@@ -50,7 +51,7 @@ func run() int {
 	}()
 
 	if err := svr.Serve(ctx); err != nil {
-		logx.Err("exited with error", err)
+		logx.Err(errx.WithContext(err, "exited with error"))
 		return 1
 	}
 

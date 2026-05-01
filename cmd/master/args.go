@@ -33,7 +33,7 @@ func prepArguments() {
 	flag.Parse()
 
 	if err := validateDirectArguments(); err != nil {
-		exit1(errx.WithContextMsg(err, "validate arguments"))
+		exit1(errx.WithContext(err, "validate arguments"))
 	}
 }
 

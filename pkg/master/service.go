@@ -24,7 +24,7 @@ type Service struct {
 
 func (s *Service) Register(ctx context.Context, req *rpcv1.RegisterRequest) (*rpcv1.RegisterResponse, error) {
 	if err := s.reg.register(ctx, req.Name, req.Address); err != nil {
-		logx.Err(fmt.Sprintf("register worker %q at %q", req.Name, req.Address), err)
+		logx.Err(errx.WithContext(err, fmt.Sprintf("register worker %q at %q", req.Name, req.Address)))
 		return nil, err
 	}
 
@@ -44,7 +44,7 @@ func (s *Service) Heartbeat(ctx context.Context, req *rpcv1.HeartbeatRequest) (*
 
 func NewService(cfg Config) (*Service, error) {
 	if err := validateConfig(cfg); err != nil {
-		return nil, errx.Chain(errInvalidConfig, err)
+		return nil, errx.WithContext(err, "invalid config")
 	}
 
 	return &Service{
@@ -65,7 +65,7 @@ func (s *Service) PeriodicHealthcheck(ctx context.Context, interval, timeout, he
 			if err == nil {
 				continue
 			} else if !errx.OneOf(err, context.Canceled, context.DeadlineExceeded) {
-				logx.Err("healthcheck", err)
+				logx.Err(errx.WithContext(err, "healthcheck"))
 			} else if ctxErr := ctx.Err(); ctxErr != nil { // parent stopped
 				return ctxErr
 			}

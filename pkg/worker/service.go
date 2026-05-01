@@ -2,19 +2,12 @@ package worker
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"math/rand"
 
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/client"
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/errx"
 	rpcv1 "github.com/nlduy0310/simple-distributed-mapreduce/rpc/v1"
-)
-
-var (
-	errInvalidConfig    = errors.New("invalid config")
-	errInitMasterClient = errors.New("initialize master client")
-	errRegister         = errors.New("register to master")
 )
 
 type Service struct {
@@ -31,12 +24,12 @@ func (s *Service) Ping(context.Context, *rpcv1.PingRequest) (*rpcv1.PingResponse
 
 func NewService(cfg Config) (*Service, error) {
 	if err := validateConfig(cfg); err != nil {
-		return nil, errx.Chain(errInvalidConfig, err)
+		return nil, errx.WithContext(err, "invalid config")
 	}
 
 	client, err := client.New(cfg.MasterAddr)
 	if err != nil {
-		return nil, errx.Chain(errInitMasterClient, err)
+		return nil, errx.WithContext(err, "init master client")
 	}
 
 	master := rpcv1.NewMasterServiceClient(client.Conn)
@@ -56,7 +49,7 @@ func NewService(cfg Config) (*Service, error) {
 
 func (s *Service) Init(ctx context.Context) error {
 	if err := s.register(ctx); err != nil {
-		return errx.Chain(errRegister, err)
+		return errx.WithContext(err, "register to master")
 	}
 
 	return nil

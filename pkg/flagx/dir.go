@@ -1,17 +1,11 @@
 package flagx
 
 import (
-	"errors"
 	"os"
 	"path/filepath"
 
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/errx"
-)
-
-var (
-	errFailToStat    = errors.New("failed to stat")
-	errNotADirectory = errors.New("not a directory")
-	errFailToAbs     = errors.New("failed to get absolute path")
+	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/fsx"
 )
 
 type DirValue struct {
@@ -25,16 +19,16 @@ func (dv *DirValue) String() string {
 func (dv *DirValue) Set(val string) error {
 	info, err := os.Stat(val)
 	if err != nil {
-		return errx.Chain(errFailToStat, err)
+		return errx.WithContext(err, "stat path")
 	}
 
 	if !info.IsDir() {
-		return errNotADirectory
+		return fsx.ErrNotADirectory
 	}
 
 	abs, err := filepath.Abs(val)
 	if err != nil {
-		return errx.Chain(errFailToAbs, err)
+		return errx.WithContext(err, "get absolute path")
 	}
 
 	dv.Path = abs

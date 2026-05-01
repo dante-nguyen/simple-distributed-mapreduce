@@ -21,7 +21,7 @@ func FilterFile(path string, de fs.DirEntry) bool {
 func IsDir(path string) (bool, error) {
 	info, err := os.Stat(path)
 	if err != nil {
-		return false, errx.WithContextMsg(err, "stat path")
+		return false, errx.WithContext(err, "stat path")
 	}
 
 	return info.IsDir(), nil
@@ -30,7 +30,7 @@ func IsDir(path string) (bool, error) {
 func IsFile(path string) (bool, error) {
 	info, err := os.Stat(path)
 	if err != nil {
-		return false, errx.WithContextMsg(err, "stat path")
+		return false, errx.WithContext(err, "stat path")
 	}
 
 	return info.Mode().IsRegular(), nil
@@ -54,7 +54,7 @@ func CollectPaths(rootDir string, filters ...WalkFilter) ([]string, error) {
 	})
 
 	if err != nil {
-		return nil, errx.WithContextMsg(err, "walk dir")
+		return nil, errx.WithContext(err, "walk dir")
 	}
 
 	return res, nil
