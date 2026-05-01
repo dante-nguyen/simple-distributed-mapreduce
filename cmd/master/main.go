@@ -17,9 +17,9 @@ import (
 var (
 	port                = flag.Int("port", 8000, "the port that master will listen on")
 	advertiseAddr       = flag.String("advertise-address", "", "advertise address")
-	healthyDuration     = flag.Int("healthy-duration", 30, "maximum duration in seconds since last heartbeat of a healthy worker")
-	healthcheckInterval = flag.Int("healthcheck-interval", 5, "interval in seconds between worker heartbeat checks")
-	healthcheckTimeout  = flag.Int("healthcheck-timeout", 3, "timeout for each worker heartbeat check")
+	healthyDuration     = flag.Duration("healthy-duration", 30*time.Second, "maximum duration since last heartbeat of a healthy worker")
+	healthcheckInterval = flag.Duration("healthcheck-interval", 5*time.Second, "interval between worker heartbeat checks")
+	healthcheckTimeout  = flag.Duration("healthcheck-timeout", 3*time.Second, "timeout for each worker heartbeat check")
 )
 
 func run() int {
@@ -53,9 +53,9 @@ func run() int {
 	go func() {
 		svc.PeriodicHealthcheck(
 			ctx,
-			time.Duration(*healthcheckInterval)*time.Second,
-			time.Duration(*healthcheckTimeout)*time.Second,
-			time.Duration(*healthyDuration)*time.Second,
+			*healthcheckInterval,
+			*healthcheckTimeout,
+			*healthyDuration,
 		)
 	}()
 

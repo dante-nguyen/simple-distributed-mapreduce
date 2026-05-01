@@ -21,9 +21,9 @@ var (
 	port              = flag.Int("port", 5000, "the port to listen on")
 	masterAddr        = flag.String("master-address", "", "master address")
 	advertiseAddr     = flag.String("advertise-address", "", "advertise address")
-	initTimeout       = flag.Int("init-timeout", 30, "init timeout in seconds")
-	heartbeatInterval = flag.Int("heartbeat-interval", 5, "heartbeat interval in seconds")
-	heartbeatTimeout  = flag.Int("heartbeat-timeout", 3, "heartbeat timeout in seconds")
+	initTimeout       = flag.Duration("init-timeout", 30*time.Second, "init timeout")
+	heartbeatInterval = flag.Duration("heartbeat-interval", 5*time.Second, "heartbeat interval")
+	heartbeatTimeout  = flag.Duration("heartbeat-timeout", 3*time.Second, "heartbeat timeout")
 )
 
 var (
@@ -67,7 +67,7 @@ func run() int {
 	}
 	defer svc.Close()
 
-	initCtx, timeoutInit := context.WithTimeout(ctx, time.Duration(*initTimeout)*time.Second)
+	initCtx, timeoutInit := context.WithTimeout(ctx, *initTimeout)
 	defer timeoutInit()
 	if err = svc.Init(initCtx); err != nil {
 		logx.Err("initialize service", err)
@@ -77,7 +77,7 @@ func run() int {
 	rpcv1.RegisterWorkerServiceServer(svr.GrpcServer, svc)
 
 	go func() {
-		err := periodicHeartbeat(ctx, svc, time.Duration(*heartbeatInterval)*time.Second, time.Duration(*heartbeatTimeout)*time.Second)
+		err := periodicHeartbeat(ctx, svc, *heartbeatInterval, *heartbeatTimeout)
 		if err != nil {
 			cancelWithCause(errx.Chain(errHeartbeatFailure, err))
 		}
