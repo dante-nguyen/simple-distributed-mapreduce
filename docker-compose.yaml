@@ -9,6 +9,10 @@ services:
       - "8000"
       - "--advertise-address"
       - "master:8000"
+      - "--in"
+      - "/mnt/nfs/in"
+    volumes:
+      - ./mnt/sample:/mnt/nfs:ro
 
   worker-1:
     container_name: worker-1
@@ -28,6 +32,8 @@ services:
       - "5s"
       - "--heartbeat-timeout"
       - "3s"
+    volumes:
+      - ./mnt/sample:/mnt/nfs:rw
     depends_on:
       - master
 
@@ -49,5 +55,7 @@ services:
       - "2s"
       - "--heartbeat-timeout"
       - "1s"
+    volumes:
+      - ./mnt/sample:/mnt/nfs:rw
     depends_on:
       - master

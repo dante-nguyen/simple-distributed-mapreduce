@@ -30,3 +30,11 @@ func OneOf(err error, errs ...error) bool {
 
 	return false
 }
+
+func WithContext(err error, ctx error) error {
+	return Chain(ctx, err)
+}
+
+func WithContextMsg(err error, ctx string) error {
+	return fmt.Errorf("%s: %w", ctx, err)
+}
