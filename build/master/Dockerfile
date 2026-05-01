@@ -1,4 +1,4 @@
-FROM golang:1.26-alpine AS build
+FROM golang:1.26-alpine
 
 WORKDIR /app
 
@@ -7,12 +7,5 @@ RUN go mod download
 
 COPY . .
 RUN CGO_ENABLED=0 go build -o /bin/master ./cmd/master
-
-
-FROM scratch
-
-ENV PORT=8000
-
-COPY --from=build /bin/master /bin/master
 
 ENTRYPOINT ["/bin/master"]
