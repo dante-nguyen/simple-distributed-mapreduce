@@ -19,14 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	MasterService_RegisterWorker_FullMethodName = "/rpc.v1.MasterService/RegisterWorker"
+	MasterService_Register_FullMethodName  = "/rpc.v1.MasterService/Register"
+	MasterService_Heartbeat_FullMethodName = "/rpc.v1.MasterService/Heartbeat"
 )
 
 // MasterServiceClient is the client API for MasterService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MasterServiceClient interface {
-	RegisterWorker(ctx context.Context, in *RegisterWorkerRequest, opts ...grpc.CallOption) (*RegisterWorkerResponse, error)
+	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
+	Heartbeat(ctx context.Context, in *HeartbeatRequest, opts ...grpc.CallOption) (*HeartbeatResponse, error)
 }
 
 type masterServiceClient struct {
@@ -37,10 +39,20 @@ func NewMasterServiceClient(cc grpc.ClientConnInterface) MasterServiceClient {
 	return &masterServiceClient{cc}
 }
 
-func (c *masterServiceClient) RegisterWorker(ctx context.Context, in *RegisterWorkerRequest, opts ...grpc.CallOption) (*RegisterWorkerResponse, error) {
+func (c *masterServiceClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RegisterWorkerResponse)
-	err := c.cc.Invoke(ctx, MasterService_RegisterWorker_FullMethodName, in, out, cOpts...)
+	out := new(RegisterResponse)
+	err := c.cc.Invoke(ctx, MasterService_Register_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *masterServiceClient) Heartbeat(ctx context.Context, in *HeartbeatRequest, opts ...grpc.CallOption) (*HeartbeatResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(HeartbeatResponse)
+	err := c.cc.Invoke(ctx, MasterService_Heartbeat_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +63,8 @@ func (c *masterServiceClient) RegisterWorker(ctx context.Context, in *RegisterWo
 // All implementations must embed UnimplementedMasterServiceServer
 // for forward compatibility.
 type MasterServiceServer interface {
-	RegisterWorker(context.Context, *RegisterWorkerRequest) (*RegisterWorkerResponse, error)
+	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
+	Heartbeat(context.Context, *HeartbeatRequest) (*HeartbeatResponse, error)
 	mustEmbedUnimplementedMasterServiceServer()
 }
 
@@ -62,8 +75,11 @@ type MasterServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedMasterServiceServer struct{}
 
-func (UnimplementedMasterServiceServer) RegisterWorker(context.Context, *RegisterWorkerRequest) (*RegisterWorkerResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method RegisterWorker not implemented")
+func (UnimplementedMasterServiceServer) Register(context.Context, *RegisterRequest) (*RegisterResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Register not implemented")
+}
+func (UnimplementedMasterServiceServer) Heartbeat(context.Context, *HeartbeatRequest) (*HeartbeatResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Heartbeat not implemented")
 }
 func (UnimplementedMasterServiceServer) mustEmbedUnimplementedMasterServiceServer() {}
 func (UnimplementedMasterServiceServer) testEmbeddedByValue()                       {}
@@ -86,20 +102,38 @@ func RegisterMasterServiceServer(s grpc.ServiceRegistrar, srv MasterServiceServe
 	s.RegisterService(&MasterService_ServiceDesc, srv)
 }
 
-func _MasterService_RegisterWorker_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RegisterWorkerRequest)
+func _MasterService_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MasterServiceServer).RegisterWorker(ctx, in)
+		return srv.(MasterServiceServer).Register(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MasterService_RegisterWorker_FullMethodName,
+		FullMethod: MasterService_Register_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MasterServiceServer).RegisterWorker(ctx, req.(*RegisterWorkerRequest))
+		return srv.(MasterServiceServer).Register(ctx, req.(*RegisterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MasterService_Heartbeat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HeartbeatRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MasterServiceServer).Heartbeat(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MasterService_Heartbeat_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MasterServiceServer).Heartbeat(ctx, req.(*HeartbeatRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -112,8 +146,12 @@ var MasterService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MasterServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "RegisterWorker",
-			Handler:    _MasterService_RegisterWorker_Handler,
+			MethodName: "Register",
+			Handler:    _MasterService_Register_Handler,
+		},
+		{
+			MethodName: "Heartbeat",
+			Handler:    _MasterService_Heartbeat_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

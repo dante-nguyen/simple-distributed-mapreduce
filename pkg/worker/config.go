@@ -1,0 +1,26 @@
+package worker
+
+import (
+	"errors"
+)
+
+var (
+	errEmptyMasterAddr    = errors.New("empty master address")
+	errEmptyAdvertiseAddr = errors.New("empty advertise address")
+)
+
+type Config struct {
+	Name          string
+	MasterAddr    string
+	AdvertiseAddr string
+}
+
+func validateConfig(cfg Config) error {
+	if len(cfg.MasterAddr) == 0 {
+		return errEmptyMasterAddr
+	} else if len(cfg.AdvertiseAddr) == 0 {
+		return errEmptyAdvertiseAddr
+	}
+
+	return nil
+}

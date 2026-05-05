@@ -21,26 +21,27 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type MapRequest struct {
+type PingRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *MapRequest) Reset() {
-	*x = MapRequest{}
+func (x *PingRequest) Reset() {
+	*x = PingRequest{}
 	mi := &file_rpc_v1_worker_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *MapRequest) String() string {
+func (x *PingRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MapRequest) ProtoMessage() {}
+func (*PingRequest) ProtoMessage() {}
 
-func (x *MapRequest) ProtoReflect() protoreflect.Message {
+func (x *PingRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_rpc_v1_worker_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -52,31 +53,39 @@ func (x *MapRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use MapRequest.ProtoReflect.Descriptor instead.
-func (*MapRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PingRequest.ProtoReflect.Descriptor instead.
+func (*PingRequest) Descriptor() ([]byte, []int) {
 	return file_rpc_v1_worker_proto_rawDescGZIP(), []int{0}
 }
 
-type MapResponse struct {
+func (x *PingRequest) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type PingResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *MapResponse) Reset() {
-	*x = MapResponse{}
+func (x *PingResponse) Reset() {
+	*x = PingResponse{}
 	mi := &file_rpc_v1_worker_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *MapResponse) String() string {
+func (x *PingResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MapResponse) ProtoMessage() {}
+func (*PingResponse) ProtoMessage() {}
 
-func (x *MapResponse) ProtoReflect() protoreflect.Message {
+func (x *PingResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_rpc_v1_worker_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -88,21 +97,29 @@ func (x *MapResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use MapResponse.ProtoReflect.Descriptor instead.
-func (*MapResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PingResponse.ProtoReflect.Descriptor instead.
+func (*PingResponse) Descriptor() ([]byte, []int) {
 	return file_rpc_v1_worker_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *PingResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
 }
 
 var File_rpc_v1_worker_proto protoreflect.FileDescriptor
 
 const file_rpc_v1_worker_proto_rawDesc = "" +
 	"\n" +
-	"\x13rpc/v1/worker.proto\x12\x06rpc.v1\"\f\n" +
-	"\n" +
-	"MapRequest\"\r\n" +
-	"\vMapResponse2A\n" +
-	"\rWorkerService\x120\n" +
-	"\x03Map\x12\x12.rpc.v1.MapRequest\x1a\x13.rpc.v1.MapResponse\"\x00B@Z>github.com/nlduy0310/simple-distributed-mapreduce/rpc/v1;rpcv1b\x06proto3"
+	"\x13rpc/v1/worker.proto\x12\x06rpc.v1\"'\n" +
+	"\vPingRequest\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"(\n" +
+	"\fPingResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage2D\n" +
+	"\rWorkerService\x123\n" +
+	"\x04Ping\x12\x13.rpc.v1.PingRequest\x1a\x14.rpc.v1.PingResponse\"\x00B@Z>github.com/nlduy0310/simple-distributed-mapreduce/rpc/v1;rpcv1b\x06proto3"
 
 var (
 	file_rpc_v1_worker_proto_rawDescOnce sync.Once
@@ -118,12 +135,12 @@ func file_rpc_v1_worker_proto_rawDescGZIP() []byte {
 
 var file_rpc_v1_worker_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_rpc_v1_worker_proto_goTypes = []any{
-	(*MapRequest)(nil),  // 0: rpc.v1.MapRequest
-	(*MapResponse)(nil), // 1: rpc.v1.MapResponse
+	(*PingRequest)(nil),  // 0: rpc.v1.PingRequest
+	(*PingResponse)(nil), // 1: rpc.v1.PingResponse
 }
 var file_rpc_v1_worker_proto_depIdxs = []int32{
-	0, // 0: rpc.v1.WorkerService.Map:input_type -> rpc.v1.MapRequest
-	1, // 1: rpc.v1.WorkerService.Map:output_type -> rpc.v1.MapResponse
+	0, // 0: rpc.v1.WorkerService.Ping:input_type -> rpc.v1.PingRequest
+	1, // 1: rpc.v1.WorkerService.Ping:output_type -> rpc.v1.PingResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

@@ -5,11 +5,13 @@ package rpc.v1;
 option go_package = "github.com/nlduy0310/simple-distributed-mapreduce/rpc/v1;rpcv1";
 
 service WorkerService {
-  rpc Map(MapRequest) returns (MapResponse) {}
+  rpc Ping(PingRequest) returns (PingResponse) {}
 }
 
-message MapRequest {
+message PingRequest {
+  string message = 1;
 }
 
-message MapResponse {
+message PingResponse {
+  string message = 1;
 }

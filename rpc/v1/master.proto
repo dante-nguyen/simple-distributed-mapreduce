@@ -5,12 +5,23 @@ package rpc.v1;
 option go_package = "github.com/nlduy0310/simple-distributed-mapreduce/rpc/v1;rpcv1";
 
 service MasterService {
-  rpc RegisterWorker(RegisterWorkerRequest) returns (RegisterWorkerResponse) {}
+  rpc Register(RegisterRequest) returns (RegisterResponse) {}
+  rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse) {}
 }
 
-message RegisterWorkerRequest {
-  string id = 1;
+message RegisterRequest {
+  string name = 1;
+  string address = 2;
 }
 
-message RegisterWorkerResponse {
+message RegisterResponse {
+  bool ok = 1;
+}
+
+message HeartbeatRequest {
+  string name = 1;
+}
+
+message HeartbeatResponse {
+  bool ok = 1;
 }

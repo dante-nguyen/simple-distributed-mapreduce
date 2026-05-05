@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	WorkerService_Map_FullMethodName = "/rpc.v1.WorkerService/Map"
+	WorkerService_Ping_FullMethodName = "/rpc.v1.WorkerService/Ping"
 )
 
 // WorkerServiceClient is the client API for WorkerService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type WorkerServiceClient interface {
-	Map(ctx context.Context, in *MapRequest, opts ...grpc.CallOption) (*MapResponse, error)
+	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
 }
 
 type workerServiceClient struct {
@@ -37,10 +37,10 @@ func NewWorkerServiceClient(cc grpc.ClientConnInterface) WorkerServiceClient {
 	return &workerServiceClient{cc}
 }
 
-func (c *workerServiceClient) Map(ctx context.Context, in *MapRequest, opts ...grpc.CallOption) (*MapResponse, error) {
+func (c *workerServiceClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MapResponse)
-	err := c.cc.Invoke(ctx, WorkerService_Map_FullMethodName, in, out, cOpts...)
+	out := new(PingResponse)
+	err := c.cc.Invoke(ctx, WorkerService_Ping_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (c *workerServiceClient) Map(ctx context.Context, in *MapRequest, opts ...g
 // All implementations must embed UnimplementedWorkerServiceServer
 // for forward compatibility.
 type WorkerServiceServer interface {
-	Map(context.Context, *MapRequest) (*MapResponse, error)
+	Ping(context.Context, *PingRequest) (*PingResponse, error)
 	mustEmbedUnimplementedWorkerServiceServer()
 }
 
@@ -62,8 +62,8 @@ type WorkerServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedWorkerServiceServer struct{}
 
-func (UnimplementedWorkerServiceServer) Map(context.Context, *MapRequest) (*MapResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Map not implemented")
+func (UnimplementedWorkerServiceServer) Ping(context.Context, *PingRequest) (*PingResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Ping not implemented")
 }
 func (UnimplementedWorkerServiceServer) mustEmbedUnimplementedWorkerServiceServer() {}
 func (UnimplementedWorkerServiceServer) testEmbeddedByValue()                       {}
@@ -86,20 +86,20 @@ func RegisterWorkerServiceServer(s grpc.ServiceRegistrar, srv WorkerServiceServe
 	s.RegisterService(&WorkerService_ServiceDesc, srv)
 }
 
-func _WorkerService_Map_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MapRequest)
+func _WorkerService_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PingRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(WorkerServiceServer).Map(ctx, in)
+		return srv.(WorkerServiceServer).Ping(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: WorkerService_Map_FullMethodName,
+		FullMethod: WorkerService_Ping_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WorkerServiceServer).Map(ctx, req.(*MapRequest))
+		return srv.(WorkerServiceServer).Ping(ctx, req.(*PingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -112,8 +112,8 @@ var WorkerService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*WorkerServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Map",
-			Handler:    _WorkerService_Map_Handler,
+			MethodName: "Ping",
+			Handler:    _WorkerService_Ping_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

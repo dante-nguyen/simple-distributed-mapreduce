@@ -1,41 +1,64 @@
 package main
 
 import (
+	"context"
 	"os"
+	"os/signal"
+	"syscall"
 
-	"github.com/joho/godotenv"
-	"github.com/nlduy0310/simple-distributed-mapreduce/cli"
-	"github.com/nlduy0310/simple-distributed-mapreduce/errorsx"
-	"github.com/nlduy0310/simple-distributed-mapreduce/master"
-	"github.com/nlduy0310/simplelog"
+	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/errx"
+	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/fsx"
+	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/logx"
+	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/master"
+	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/server"
+	rpcv1 "github.com/nlduy0310/simple-distributed-mapreduce/rpc/v1"
 )
 
-var logger = simplelog.NewLogger("entrypoint", simplelog.DEBUG)
-
-func main() {
-	os.Exit(run())
-}
-
 func run() int {
-	err := godotenv.Load(".env")
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	svrConfig, err := server.NewConfig(port, advertiseAddr)
 	if err != nil {
-		logger.Fatal(errorsx.WrapAsMessage("failed to load env file", err))
+		logx.Err(errx.WithContext(err, "initialize config"))
+		return 1
 	}
 
-	opts, err := cli.ParseMasterCLIOptions()
+	svr, err := server.New(svrConfig)
 	if err != nil {
-		logger.Fatal(errorsx.WrapAsMessage("failed to parse CLI options", err))
+		logx.Err(errx.WithContext(err, "configure server"))
+		return 1
+	}
+	defer svr.Close()
+
+	inputFiles, err := fsx.CollectPaths(inDir.Path, fsx.FilterFile)
+	if err != nil {
+		logx.Err(errx.WithContext(err, "list input files"))
+		return 1
 	}
 
-	svr, err := master.Setup(opts)
+	svcConfig := master.Config{InputFiles: inputFiles}
+	svc, err := master.NewService(svcConfig)
 	if err != nil {
-		logger.Fatal(errorsx.WrapAsMessage("failed to setup server", err))
+		logx.Err(errx.WithContext(err, "configure service"))
+		return 1
 	}
 
-	if err := svr.Serve(); err != nil {
-		logger.Error(errorsx.WrapAsMessage("server stopped with error", err))
+	rpcv1.RegisterMasterServiceServer(svr.GrpcServer, svc)
+
+	go func() {
+		svc.PeriodicHealthcheck(ctx, healthcheckInterval, healthcheckTimeout, healthyDuration)
+	}()
+
+	if err := svr.Serve(ctx); err != nil {
+		logx.Err(errx.WithContext(err, "exited with error"))
 		return 1
 	}
 
 	return 0
+}
+
+func main() {
+	prepArguments()
+	os.Exit(run())
 }
