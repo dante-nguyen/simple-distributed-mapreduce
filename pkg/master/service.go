@@ -42,10 +42,7 @@ func NewService(cfg Config) (*Service, error) {
 		return nil, errx.WithContext(err, "invalid config")
 	}
 
-	return &Service{
-		Config: cfg,
-		reg:    newRegistry(),
-	}, nil
+	return &Service{Config: cfg, reg: newRegistry()}, nil
 }
 
 // PeriodicHealthcheck periodically check latest worker heartbeats and remove them if necessary

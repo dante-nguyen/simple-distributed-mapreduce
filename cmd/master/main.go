@@ -7,7 +7,6 @@ import (
 	"syscall"
 
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/errx"
-	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/fsx"
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/logx"
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/master"
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/server"
@@ -31,9 +30,9 @@ func run() int {
 	}
 	defer svr.Close()
 
-	inputFiles, err := fsx.CollectPaths(inDir.Path, fsx.FilterFile)
+	inputFiles, err := globFiles(nfsRoot.Path, inputPattern)
 	if err != nil {
-		logx.Err(errx.WithContext(err, "list input files"))
+		logx.Err(errx.WithContext(err, "glob input files"))
 		return 1
 	}
 

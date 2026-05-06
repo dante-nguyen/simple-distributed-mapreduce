@@ -9,10 +9,12 @@ services:
       - "8000"
       - "--advertise-address"
       - "master:8000"
-      - "--in"
-      - "/mnt/nfs/in"
       - "--healthy-duration"
       - "10s"
+      - "--nfs-root"
+      - "/mnt/nfs"
+      - "--input"
+      - "**/*.txt"
     volumes:
       - ./mnt/sample:/mnt/nfs:ro
 
