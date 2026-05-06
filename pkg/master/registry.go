@@ -1,11 +1,9 @@
 package master
 
 import (
-	"context"
 	"errors"
+	"sync"
 	"time"
-
-	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/syncx"
 )
 
 var (
@@ -14,47 +12,38 @@ var (
 )
 
 type registry struct {
-	mu      *syncx.CtxRWMutex
+	mu      sync.RWMutex
 	workers map[string]*worker
 }
 
 func newRegistry() *registry {
 	return &registry{
-		mu:      syncx.NewCtxRWMutex(),
 		workers: make(map[string]*worker),
 	}
 }
 
-func (r *registry) exist(ctx context.Context, name string) (bool, error) {
-	if err := r.mu.RLock(ctx); err != nil {
-		return false, err
-	}
+func (r *registry) exist(name string) bool {
+	r.mu.RLock()
 	defer r.mu.RUnlock()
 
 	_, ok := r.workers[name]
-	return ok, nil
+	return ok
 }
 
-func (r *registry) register(ctx context.Context, name, address string) error {
-	if exist, err := r.exist(ctx, name); err != nil {
-		return err
-	} else if exist {
+func (r *registry) register(name, address string) error {
+	if r.exist(name) {
 		return errWorkerExists
 	}
 
-	if err := r.mu.Lock(ctx); err != nil {
-		return err
-	}
+	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	r.workers[name] = newWorker(address)
 	return nil
 }
 
-func (r *registry) lastHeartbeat(ctx context.Context, name string) (time.Time, error) {
-	if err := r.mu.RLock(ctx); err != nil {
-		return time.Time{}, err
-	}
+func (r *registry) lastHeartbeat(name string) (time.Time, error) {
+	r.mu.RLock()
 	defer r.mu.RUnlock()
 
 	w, ok := r.workers[name]
@@ -62,18 +51,11 @@ func (r *registry) lastHeartbeat(ctx context.Context, name string) (time.Time, e
 		return time.Time{}, errWorkerNotFound
 	}
 
-	ret, err := w.lastHeartbeat(ctx)
-	if err != nil {
-		return time.Time{}, err
-	}
-
-	return ret, nil
+	return w.lastHeartbeat(), nil
 }
 
-func (r *registry) recordHeartbeat(ctx context.Context, name string, at time.Time) error {
-	if err := r.mu.RLock(ctx); err != nil {
-		return err
-	}
+func (r *registry) recordHeartbeat(name string, at time.Time) error {
+	r.mu.RLock()
 	defer r.mu.RUnlock()
 
 	w, ok := r.workers[name]
@@ -81,28 +63,24 @@ func (r *registry) recordHeartbeat(ctx context.Context, name string, at time.Tim
 		return errWorkerNotFound
 	}
 
-	return w.recordHeartbeat(ctx, at)
-}
-
-func (r *registry) remove(ctx context.Context, name string) error {
-	if err := r.mu.Lock(ctx); err != nil {
-		return err
-	}
-	defer r.mu.Unlock()
-
-	delete(r.workers, name)
+	w.recordHeartbeat(at)
 	return nil
 }
 
-func (r *registry) names(ctx context.Context) ([]string, error) {
-	if err := r.mu.RLock(ctx); err != nil {
-		return nil, err
-	}
+func (r *registry) remove(name string) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	delete(r.workers, name)
+}
+
+func (r *registry) names() []string {
+	r.mu.RLock()
 	defer r.mu.RUnlock()
 
 	ret := make([]string, 0, len(r.workers))
 	for name := range r.workers {
 		ret = append(ret, name)
 	}
-	return ret, nil
+	return ret
 }
