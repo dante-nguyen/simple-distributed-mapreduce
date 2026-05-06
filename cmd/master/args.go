@@ -18,7 +18,6 @@ var (
 	// healthcheck
 	healthyDuration     time.Duration
 	healthcheckInterval time.Duration
-	healthcheckTimeout  time.Duration
 	// input
 	inDir flagx.DirValue
 )
@@ -28,7 +27,6 @@ func prepArguments() {
 	flag.StringVar(&advertiseAddr, "advertise-address", "", "grpc server advertise address")
 	flag.DurationVar(&healthyDuration, "healthy-duration", 30*time.Second, "maximum duration since last heartbeat of a healthy worker")
 	flag.DurationVar(&healthcheckInterval, "healthcheck-interval", 5*time.Second, "interval between worker heartbeat checks")
-	flag.DurationVar(&healthcheckTimeout, "healthcheck-timeout", 3*time.Second, "timeout for each healthcheck")
 	flag.Var(&inDir, "in", "input directory")
 	flag.Parse()
 
@@ -43,8 +41,6 @@ func validateDirectArguments() error {
 		return errors.New("invalid port")
 	case len(advertiseAddr) == 0:
 		return errors.New("advertise address is required")
-	case healthcheckTimeout >= healthcheckInterval:
-		return errors.New("healthcheck timeout must be less than the interval")
 	case len(inDir.Path) == 0:
 		return errors.New("input directory is required")
 	default:

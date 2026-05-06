@@ -11,6 +11,8 @@ services:
       - "master:8000"
       - "--in"
       - "/mnt/nfs/in"
+      - "--healthy-duration"
+      - "10s"
     volumes:
       - ./mnt/sample:/mnt/nfs:ro
 

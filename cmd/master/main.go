@@ -47,7 +47,7 @@ func run() int {
 	rpcv1.RegisterMasterServiceServer(svr.GrpcServer, svc)
 
 	go func() {
-		svc.PeriodicHealthcheck(ctx, healthcheckInterval, healthcheckTimeout, healthyDuration)
+		svc.PeriodicHealthcheck(ctx, healthcheckInterval, healthyDuration)
 	}()
 
 	if err := svr.Serve(ctx); err != nil {
