@@ -36,7 +36,7 @@ func run() int {
 		return 1
 	}
 
-	svcConfig := master.Config{InputFiles: inputFiles}
+	svcConfig := master.Config{InputFiles: inputFiles, MaxWorkers: maxWorkers}
 	svc, err := master.NewService(svcConfig)
 	if err != nil {
 		logx.Err(errx.WithContext(err, "configure service"))
@@ -47,6 +47,9 @@ func run() int {
 
 	go func() {
 		svc.PeriodicHealthcheck(ctx, healthcheckInterval, healthyDuration)
+	}()
+	go func() {
+		svc.RunAssignLoop(ctx)
 	}()
 
 	if err := svr.Serve(ctx); err != nil {

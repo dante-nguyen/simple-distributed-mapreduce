@@ -30,10 +30,13 @@ func parseFlags() {
 	flag.StringVar(&name, "name", "", "the worker's identity, leave out to generate a random one")
 	flag.IntVar(&port, "port", 5000, "the port to listen on")
 	flag.StringVar(&masterAddr, "master-address", "", "master address")
+	flag.StringVar(&advertiseAddr, "advertise-address", "", "advertise address")
 	flag.DurationVar(&initTimeout, "init-timeout", 30*time.Second, "init timeout")
 	flag.DurationVar(&heartbeatInterval, "heartbeat-interval", 5*time.Second, "heartbeat interval")
 	flag.DurationVar(&heartbeatTimeout, "heartbeat-timeout", 3*time.Second, "heartbeat timeout")
 	flag.Var(&nfsRoot, "nfs-root", "NFS root directory")
+
+	flag.Parse()
 }
 
 func validateArguments() error {
@@ -64,6 +67,8 @@ func require(name string) error {
 }
 
 func prepArguments() {
+	parseFlags()
+
 	if err := validateArguments(); err != nil {
 		logx.Err(errx.WithContext(err, "validate arguments"))
 		os.Exit(1)

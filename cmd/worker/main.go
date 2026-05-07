@@ -45,6 +45,7 @@ func run() int {
 		Name:          name,
 		MasterAddr:    masterAddr,
 		AdvertiseAddr: svr.Config.AdvertiseAddr,
+		NfsRoot:       nfsRoot.Path,
 	})
 	if err != nil {
 		logx.Err(errx.WithContext(err, "configure service"))

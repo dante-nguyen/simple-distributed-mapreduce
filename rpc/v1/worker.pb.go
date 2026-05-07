@@ -21,6 +21,102 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type MapRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NfsPath       string                 `protobuf:"bytes,1,opt,name=nfs_path,json=nfsPath,proto3" json:"nfs_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MapRequest) Reset() {
+	*x = MapRequest{}
+	mi := &file_rpc_v1_worker_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MapRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MapRequest) ProtoMessage() {}
+
+func (x *MapRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_v1_worker_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MapRequest.ProtoReflect.Descriptor instead.
+func (*MapRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_v1_worker_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *MapRequest) GetNfsPath() string {
+	if x != nil {
+		return x.NfsPath
+	}
+	return ""
+}
+
+type MapResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Ok            bool                   `protobuf:"varint,1,opt,name=ok,proto3" json:"ok,omitempty"`
+	Reason        string                 `protobuf:"bytes,2,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MapResponse) Reset() {
+	*x = MapResponse{}
+	mi := &file_rpc_v1_worker_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MapResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MapResponse) ProtoMessage() {}
+
+func (x *MapResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_v1_worker_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MapResponse.ProtoReflect.Descriptor instead.
+func (*MapResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_v1_worker_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *MapResponse) GetOk() bool {
+	if x != nil {
+		return x.Ok
+	}
+	return false
+}
+
+func (x *MapResponse) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
 type PingRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
@@ -30,7 +126,7 @@ type PingRequest struct {
 
 func (x *PingRequest) Reset() {
 	*x = PingRequest{}
-	mi := &file_rpc_v1_worker_proto_msgTypes[0]
+	mi := &file_rpc_v1_worker_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -42,7 +138,7 @@ func (x *PingRequest) String() string {
 func (*PingRequest) ProtoMessage() {}
 
 func (x *PingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_v1_worker_proto_msgTypes[0]
+	mi := &file_rpc_v1_worker_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -55,7 +151,7 @@ func (x *PingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PingRequest.ProtoReflect.Descriptor instead.
 func (*PingRequest) Descriptor() ([]byte, []int) {
-	return file_rpc_v1_worker_proto_rawDescGZIP(), []int{0}
+	return file_rpc_v1_worker_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *PingRequest) GetMessage() string {
@@ -74,7 +170,7 @@ type PingResponse struct {
 
 func (x *PingResponse) Reset() {
 	*x = PingResponse{}
-	mi := &file_rpc_v1_worker_proto_msgTypes[1]
+	mi := &file_rpc_v1_worker_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -86,7 +182,7 @@ func (x *PingResponse) String() string {
 func (*PingResponse) ProtoMessage() {}
 
 func (x *PingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rpc_v1_worker_proto_msgTypes[1]
+	mi := &file_rpc_v1_worker_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -99,7 +195,7 @@ func (x *PingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PingResponse.ProtoReflect.Descriptor instead.
 func (*PingResponse) Descriptor() ([]byte, []int) {
-	return file_rpc_v1_worker_proto_rawDescGZIP(), []int{1}
+	return file_rpc_v1_worker_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *PingResponse) GetMessage() string {
@@ -114,12 +210,19 @@ var File_rpc_v1_worker_proto protoreflect.FileDescriptor
 const file_rpc_v1_worker_proto_rawDesc = "" +
 	"\n" +
 	"\x13rpc/v1/worker.proto\x12\x06rpc.v1\"'\n" +
+	"\n" +
+	"MapRequest\x12\x19\n" +
+	"\bnfs_path\x18\x01 \x01(\tR\anfsPath\"5\n" +
+	"\vMapResponse\x12\x0e\n" +
+	"\x02ok\x18\x01 \x01(\bR\x02ok\x12\x16\n" +
+	"\x06reason\x18\x02 \x01(\tR\x06reason\"'\n" +
 	"\vPingRequest\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"(\n" +
 	"\fPingResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage2D\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage2v\n" +
 	"\rWorkerService\x123\n" +
-	"\x04Ping\x12\x13.rpc.v1.PingRequest\x1a\x14.rpc.v1.PingResponse\"\x00B@Z>github.com/nlduy0310/simple-distributed-mapreduce/rpc/v1;rpcv1b\x06proto3"
+	"\x04Ping\x12\x13.rpc.v1.PingRequest\x1a\x14.rpc.v1.PingResponse\"\x00\x120\n" +
+	"\x03Map\x12\x12.rpc.v1.MapRequest\x1a\x13.rpc.v1.MapResponse\"\x00B@Z>github.com/nlduy0310/simple-distributed-mapreduce/rpc/v1;rpcv1b\x06proto3"
 
 var (
 	file_rpc_v1_worker_proto_rawDescOnce sync.Once
@@ -133,16 +236,20 @@ func file_rpc_v1_worker_proto_rawDescGZIP() []byte {
 	return file_rpc_v1_worker_proto_rawDescData
 }
 
-var file_rpc_v1_worker_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_rpc_v1_worker_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_rpc_v1_worker_proto_goTypes = []any{
-	(*PingRequest)(nil),  // 0: rpc.v1.PingRequest
-	(*PingResponse)(nil), // 1: rpc.v1.PingResponse
+	(*MapRequest)(nil),   // 0: rpc.v1.MapRequest
+	(*MapResponse)(nil),  // 1: rpc.v1.MapResponse
+	(*PingRequest)(nil),  // 2: rpc.v1.PingRequest
+	(*PingResponse)(nil), // 3: rpc.v1.PingResponse
 }
 var file_rpc_v1_worker_proto_depIdxs = []int32{
-	0, // 0: rpc.v1.WorkerService.Ping:input_type -> rpc.v1.PingRequest
-	1, // 1: rpc.v1.WorkerService.Ping:output_type -> rpc.v1.PingResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	2, // 0: rpc.v1.WorkerService.Ping:input_type -> rpc.v1.PingRequest
+	0, // 1: rpc.v1.WorkerService.Map:input_type -> rpc.v1.MapRequest
+	3, // 2: rpc.v1.WorkerService.Ping:output_type -> rpc.v1.PingResponse
+	1, // 3: rpc.v1.WorkerService.Map:output_type -> rpc.v1.MapResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -159,7 +266,7 @@ func file_rpc_v1_worker_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rpc_v1_worker_proto_rawDesc), len(file_rpc_v1_worker_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

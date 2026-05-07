@@ -24,15 +24,22 @@ var (
 	// input
 	nfsRoot      = flagx.DirValue{Path: "/mnt/nfs"}
 	inputPattern string
+	// operations
+	maxWorkers int
 )
 
 func prepArguments() {
 	flag.IntVar(&port, "port", 8000, "grpc server port")
 	flag.StringVar(&advertiseAddr, "advertise-address", "", "grpc server advertise address")
+
 	flag.DurationVar(&healthyDuration, "healthy-duration", 30*time.Second, "maximum duration since last heartbeat of a healthy worker")
 	flag.DurationVar(&healthcheckInterval, "healthcheck-interval", 5*time.Second, "interval between worker heartbeat checks")
+
 	flag.Var(&nfsRoot, "nfs-root", "NFS root volume")
 	flag.StringVar(&inputPattern, "input", "", "input files glob pattern relative to NFS root")
+
+	flag.IntVar(&maxWorkers, "max-workers", 100, "maximum number of workers")
+
 	flag.Parse()
 
 	if err := validateDirectArguments(); err != nil {
