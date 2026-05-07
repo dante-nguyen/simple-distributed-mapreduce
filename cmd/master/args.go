@@ -11,6 +11,7 @@ import (
 
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/errx"
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/flagx"
+	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/fsx"
 )
 
 var (
@@ -63,13 +64,26 @@ func exit1(err error) {
 	os.Exit(1)
 }
 
-func globFiles(nfsRoot string, relPattern string) ([]string, error) {
+// findInputFiles glob files in a directory, returning relative paths
+func findInputFiles(nfsRoot string, relPattern string) ([]string, error) {
 	absPattern := filepath.Join(nfsRoot, relPattern)
 	matches, err := filepath.Glob(absPattern)
 	if err != nil {
-		return nil, err
+		return nil, errx.WithContext(err, "glob input files")
 	}
 
-	// will check if paths are files in server config validation
+	for _, match := range matches {
+		is, err := fsx.IsFile(match)
+		if err != nil {
+			return nil, errx.WithContext(err, fmt.Sprintf("validate path %s", match))
+		} else if !is {
+			return nil, errx.WithContext(fsx.ErrNotAFile, fmt.Sprintf("validate path %s", match))
+		}
+	}
+
+	for i := range matches {
+		matches[i], _ = filepath.Rel(nfsRoot, matches[i])
+	}
+
 	return matches, nil
 }

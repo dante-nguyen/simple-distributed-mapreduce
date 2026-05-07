@@ -30,9 +30,9 @@ func run() int {
 	}
 	defer svr.Close()
 
-	inputFiles, err := globFiles(nfsRoot.Path, inputPattern)
+	inputFiles, err := findInputFiles(nfsRoot.Path, inputPattern)
 	if err != nil {
-		logx.Err(errx.WithContext(err, "glob input files"))
+		logx.Err(errx.WithContext(err, "find input files"))
 		return 1
 	}
 
