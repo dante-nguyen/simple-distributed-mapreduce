@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"flag"
 	"os"
 	"os/signal"
@@ -16,24 +15,10 @@ import (
 	rpcv1 "github.com/nlduy0310/simple-distributed-mapreduce/rpc/v1"
 )
 
-var (
-	name              = flag.String("name", "", "the worker's identity")
-	port              = flag.Int("port", 5000, "the port to listen on")
-	masterAddr        = flag.String("master-address", "", "master address")
-	advertiseAddr     = flag.String("advertise-address", "", "advertise address")
-	initTimeout       = flag.Duration("init-timeout", 30*time.Second, "init timeout")
-	heartbeatInterval = flag.Duration("heartbeat-interval", 5*time.Second, "heartbeat interval")
-	heartbeatTimeout  = flag.Duration("heartbeat-timeout", 3*time.Second, "heartbeat timeout")
-)
-
-var (
-	errHeartbeatFailure = errors.New("heartbeat failure")
-)
-
 func run() int {
 	flag.Parse()
 
-	if err := validateFlags(); err != nil {
+	if err := validateArguments(); err != nil {
 		logx.Err(errx.WithContext(err, "configure application"))
 		return 1
 	}
@@ -43,7 +28,7 @@ func run() int {
 	ctx, cancelWithCause := context.WithCancelCause(signalCtx)
 	defer cancelWithCause(nil)
 
-	svrConfig, err := server.NewConfig(*port, *advertiseAddr)
+	svrConfig, err := server.NewConfig(port, advertiseAddr)
 	if err != nil {
 		logx.Err(errx.WithContext(err, "init server config"))
 		return 1
@@ -57,8 +42,8 @@ func run() int {
 	defer svr.Close()
 
 	svc, err := worker.NewService(worker.Config{
-		Name:          *name,
-		MasterAddr:    *masterAddr,
+		Name:          name,
+		MasterAddr:    masterAddr,
 		AdvertiseAddr: svr.Config.AdvertiseAddr,
 	})
 	if err != nil {
@@ -67,7 +52,7 @@ func run() int {
 	}
 	defer svc.Close()
 
-	initCtx, timeoutInit := context.WithTimeout(ctx, *initTimeout)
+	initCtx, timeoutInit := context.WithTimeout(ctx, initTimeout)
 	defer timeoutInit()
 	if err = svc.Init(initCtx); err != nil {
 		logx.Err(errx.WithContext(err, "initialize service"))
@@ -77,9 +62,9 @@ func run() int {
 	rpcv1.RegisterWorkerServiceServer(svr.GrpcServer, svc)
 
 	go func() {
-		err := periodicHeartbeat(ctx, svc, *heartbeatInterval, *heartbeatTimeout)
+		err := periodicHeartbeat(ctx, svc, heartbeatInterval, heartbeatTimeout)
 		if err != nil {
-			cancelWithCause(errx.WithContextErr(err, errHeartbeatFailure))
+			cancelWithCause(errx.WithContext(err, "heartbeat failure"))
 		}
 	}()
 
@@ -111,8 +96,8 @@ func periodicHeartbeat(ctx context.Context, svc *worker.Service, interval time.D
 }
 
 func heartbeatWithTimeout(parent context.Context, svc *worker.Service, timeout time.Duration) error {
-	ctx, timeoutHeartbeat := context.WithTimeout(parent, timeout)
-	defer timeoutHeartbeat()
+	ctx, timeoutFn := context.WithTimeout(parent, timeout)
+	defer timeoutFn()
 	if err := svc.DoHeartbeat(ctx); err != nil {
 		return err
 	}
@@ -120,10 +105,7 @@ func heartbeatWithTimeout(parent context.Context, svc *worker.Service, timeout t
 	return nil
 }
 
-func validateFlags() error {
-	return nil
-}
-
 func main() {
+	prepArguments()
 	os.Exit(run())
 }
