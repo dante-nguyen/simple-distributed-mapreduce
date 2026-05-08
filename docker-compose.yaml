@@ -6,17 +6,17 @@ services:
       dockerfile: build/master/Dockerfile
     command:
       - "--port"
-      - "8000"
+      - "${MASTER_PORT}"
       - "--advertise-address"
-      - "master:8000"
+      - "${MASTER_HOST}:${MASTER_PORT}"
       - "--healthy-duration"
       - "10s"
       - "--nfs-root"
-      - "/mnt/nfs"
+      - "${NFS_ROOT}"
       - "--input"
       - "**/*.txt"
     volumes:
-      - ./mnt/sample:/mnt/nfs:ro
+      - ${HOST_IN_DIR}:${NFS_ROOT}:z
 
   worker-1:
     container_name: worker-1
@@ -31,13 +31,15 @@ services:
       - "--advertise-address"
       - "worker-1:5000"
       - "--master-address"
-      - "master:8000"
+      - "${MASTER_HOST}:${MASTER_PORT}"
       - "--heartbeat-interval"
       - "5s"
       - "--heartbeat-timeout"
       - "3s"
+      - "--nfs-root"
+      - "${NFS_ROOT}"
     volumes:
-      - ./mnt/sample:/mnt/nfs:rw
+      - ${HOST_IN_DIR}:${NFS_ROOT}:z
     depends_on:
       - master
 
@@ -54,12 +56,14 @@ services:
       - "--advertise-address"
       - "worker-2:5000"
       - "--master-address"
-      - "master:8000"
+      - "${MASTER_HOST}:${MASTER_PORT}"
       - "--heartbeat-interval"
       - "2s"
       - "--heartbeat-timeout"
       - "1s"
+      - "--nfs-root"
+      - "${NFS_ROOT}"
     volumes:
-      - ./mnt/sample:/mnt/nfs:rw
+      - ${HOST_IN_DIR}:${NFS_ROOT}:z
     depends_on:
       - master
