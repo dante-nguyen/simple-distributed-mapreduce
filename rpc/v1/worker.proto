@@ -6,6 +6,16 @@ option go_package = "github.com/nlduy0310/simple-distributed-mapreduce/rpc/v1;rp
 
 service WorkerService {
   rpc Ping(PingRequest) returns (PingResponse) {}
+  rpc Map(MapRequest) returns (MapResponse) {}
+}
+
+message MapRequest {
+  string nfs_path = 1;
+}
+
+message MapResponse {
+  bool ok = 1;
+  string reason = 2;
 }
 
 message PingRequest {

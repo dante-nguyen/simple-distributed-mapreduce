@@ -2,46 +2,74 @@ package master
 
 import (
 	"context"
+	"errors"
+	"sync"
 	"time"
 
-	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/syncx"
+	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/client"
+	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/errx"
+	rpcv1 "github.com/nlduy0310/simple-distributed-mapreduce/rpc/v1"
 )
 
 // worker is concurrency-safe and needs to be used by pointer
 type worker struct {
-	addr string // no need for mutex cause we only read for now
+	mu sync.RWMutex
 
-	heartbeatMutex *syncx.CtxRWMutex
-	heartbeat      time.Time
+	addr string
+
+	heartbeat time.Time
+
+	conn   *client.Client
+	client rpcv1.WorkerServiceClient
 }
 
-func newWorker(addr string) *worker {
+func newWorker(addr string) (*worker, error) {
+	conn, err := client.New(addr)
+	if err != nil {
+		return nil, errx.WithContext(err, "init client")
+	}
+	client := rpcv1.NewWorkerServiceClient(conn.Conn)
+
 	return &worker{
-		addr:           addr,
-		heartbeatMutex: syncx.NewCtxRWMutex(),
-		heartbeat:      time.Now(),
-	}
+		addr:      addr,
+		heartbeat: time.Now(),
+		conn:      conn,
+		client:    client,
+	}, nil
 }
 
-func (w *worker) address() string {
-	return w.addr
+func (w *worker) lastHeartbeat() time.Time {
+	w.mu.RLock()
+	defer w.mu.RUnlock()
+
+	return w.heartbeat
 }
 
-func (w *worker) lastHeartbeat(ctx context.Context) (time.Time, error) {
-	if err := w.heartbeatMutex.RLock(ctx); err != nil {
-		return time.Time{}, err
-	}
-	defer w.heartbeatMutex.RUnlock()
-
-	return w.heartbeat, nil
-}
-
-func (w *worker) recordHeartbeat(ctx context.Context, t time.Time) error {
-	if err := w.heartbeatMutex.Lock(ctx); err != nil {
-		return err
-	}
-	defer w.heartbeatMutex.Unlock()
+func (w *worker) recordHeartbeat(t time.Time) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
 
 	w.heartbeat = t
+}
+
+func (w *worker) doAssignMap(ctx context.Context, path string) error {
+	w.mu.RLock()
+	defer w.mu.RUnlock()
+
+	req := &rpcv1.MapRequest{NfsPath: path}
+	resp, err := w.client.Map(ctx, req)
+	if err != nil {
+		return err
+	} else if !resp.Ok {
+		return errors.New(resp.Reason)
+	}
+
 	return nil
+}
+
+func (w *worker) close() error {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	return w.conn.Close()
 }

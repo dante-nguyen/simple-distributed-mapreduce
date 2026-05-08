@@ -7,7 +7,6 @@ import (
 	"syscall"
 
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/errx"
-	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/fsx"
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/logx"
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/master"
 	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/server"
@@ -31,13 +30,13 @@ func run() int {
 	}
 	defer svr.Close()
 
-	inputFiles, err := fsx.CollectPaths(inDir.Path, fsx.FilterFile)
+	inputFiles, err := findInputFiles(nfsRoot.Path, inputPattern)
 	if err != nil {
-		logx.Err(errx.WithContext(err, "list input files"))
+		logx.Err(errx.WithContext(err, "find input files"))
 		return 1
 	}
 
-	svcConfig := master.Config{InputFiles: inputFiles}
+	svcConfig := master.Config{InputFiles: inputFiles, MaxWorkers: maxWorkers}
 	svc, err := master.NewService(svcConfig)
 	if err != nil {
 		logx.Err(errx.WithContext(err, "configure service"))
@@ -47,7 +46,10 @@ func run() int {
 	rpcv1.RegisterMasterServiceServer(svr.GrpcServer, svc)
 
 	go func() {
-		svc.PeriodicHealthcheck(ctx, healthcheckInterval, healthcheckTimeout, healthyDuration)
+		svc.PeriodicHealthcheck(ctx, healthcheckInterval, healthyDuration)
+	}()
+	go func() {
+		svc.RunAssignLoop(ctx)
 	}()
 
 	if err := svr.Serve(ctx); err != nil {

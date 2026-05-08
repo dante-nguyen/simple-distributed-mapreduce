@@ -1,24 +1,21 @@
 package master
 
 import (
-	"fmt"
-
-	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/errx"
-	"github.com/nlduy0310/simple-distributed-mapreduce/pkg/fsx"
+	"errors"
 )
 
 type Config struct {
-	InputFiles []string
+	InputFiles []string // paths relative to NFS root
+	MaxWorkers int
 }
 
 func validateConfig(cfg Config) error {
-	for _, path := range cfg.InputFiles {
-		if is, err := fsx.IsFile(path); err != nil {
-			return errx.WithContext(err, fmt.Sprintf("file %s", path))
-		} else if !is {
-			return errx.WithContext(fsx.ErrNotAFile, fmt.Sprintf("file %s", path))
-		}
+	switch {
+	case len(cfg.InputFiles) == 0:
+		return errors.New("no input files")
+	case cfg.MaxWorkers <= 0:
+		return errors.New("invalid number of max workers")
+	default:
+		return nil
 	}
-
-	return nil
 }

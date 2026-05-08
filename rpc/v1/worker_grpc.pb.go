@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	WorkerService_Ping_FullMethodName = "/rpc.v1.WorkerService/Ping"
+	WorkerService_Map_FullMethodName  = "/rpc.v1.WorkerService/Map"
 )
 
 // WorkerServiceClient is the client API for WorkerService service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type WorkerServiceClient interface {
 	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
+	Map(ctx context.Context, in *MapRequest, opts ...grpc.CallOption) (*MapResponse, error)
 }
 
 type workerServiceClient struct {
@@ -47,11 +49,22 @@ func (c *workerServiceClient) Ping(ctx context.Context, in *PingRequest, opts ..
 	return out, nil
 }
 
+func (c *workerServiceClient) Map(ctx context.Context, in *MapRequest, opts ...grpc.CallOption) (*MapResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MapResponse)
+	err := c.cc.Invoke(ctx, WorkerService_Map_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // WorkerServiceServer is the server API for WorkerService service.
 // All implementations must embed UnimplementedWorkerServiceServer
 // for forward compatibility.
 type WorkerServiceServer interface {
 	Ping(context.Context, *PingRequest) (*PingResponse, error)
+	Map(context.Context, *MapRequest) (*MapResponse, error)
 	mustEmbedUnimplementedWorkerServiceServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedWorkerServiceServer struct{}
 
 func (UnimplementedWorkerServiceServer) Ping(context.Context, *PingRequest) (*PingResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Ping not implemented")
+}
+func (UnimplementedWorkerServiceServer) Map(context.Context, *MapRequest) (*MapResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Map not implemented")
 }
 func (UnimplementedWorkerServiceServer) mustEmbedUnimplementedWorkerServiceServer() {}
 func (UnimplementedWorkerServiceServer) testEmbeddedByValue()                       {}
@@ -104,6 +120,24 @@ func _WorkerService_Ping_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _WorkerService_Map_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MapRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WorkerServiceServer).Map(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WorkerService_Map_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WorkerServiceServer).Map(ctx, req.(*MapRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // WorkerService_ServiceDesc is the grpc.ServiceDesc for WorkerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +148,10 @@ var WorkerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Ping",
 			Handler:    _WorkerService_Ping_Handler,
+		},
+		{
+			MethodName: "Map",
+			Handler:    _WorkerService_Map_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
